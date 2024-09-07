@@ -8,7 +8,10 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './resources/js/**/*.jsx',
+        './resources/**/*.{js,ts,jsx,tsx}',
     ],
+
+    darkMode: "class",
 
     theme: {
         extend: {
@@ -20,6 +23,6 @@ export default {
 
     plugins: [
         forms,
-        require("daisyui"),
+        require('daisyui'),
     ],
 };
