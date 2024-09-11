@@ -3,18 +3,18 @@ import TableHeading from '@/Components/TableHeading';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 
-export default function Index({ auth, products, queryParams = null }) {
-    queryParams = queryParams || {};
-    const handlePageChange = (url) => {
-        Inertia.get(url);
-    };
+export default function Index({ auth, products, queryParams = null, success, error }) {
+    // Numbering table
     const currentPage = products.current_page;
     const perPage = products.per_page;
     const getNumbering = (index) => {
         return (currentPage - 1) * perPage + index + 1;
     };
 
+    // Filtering table
+    queryParams = queryParams || {};
     const searchFieldChanged = (name, value) => {
         if (value) {
             queryParams[name] = value;
@@ -51,11 +51,24 @@ export default function Index({ auth, products, queryParams = null }) {
         });
     };
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            document.getElementById('alert-notif').style.display = 'none';
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Product</h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Product</h2>
+                    <Link href={route('product.create')} className="btn btn-primary btn-sm">
+                        <i className='ri-add-line'></i>
+                        Add Product
+                    </Link>
+                </div>
             }
         >
 
@@ -63,6 +76,22 @@ export default function Index({ auth, products, queryParams = null }) {
 
             <div className="py-12">
                 <div className="w-full px-2 mx-auto sm:px-6 lg:px-8">
+                    {success && (
+                        <div role="alert" className="alert alert-success mb-3" id='alert-notif'>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{success}</span>
+                        </div>
+                    )}
+                    {error && (
+                        <div role="alert" className="alert alert-error mb-3" id='alert-notif'>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{error}</span>
+                        </div>
+                    )}
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="overflow-x-auto pb-3">
                             <table className="table dark:text-white">
@@ -175,13 +204,13 @@ export default function Index({ auth, products, queryParams = null }) {
                                                 {product.picture ? (
                                                     <div className="avatar">
                                                         <div className="w-10 rounded">
-                                                            <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                                                            <img src={`/storage/products/${product.picture}`} alt='product-picture' />
                                                         </div>
                                                     </div>
                                                 ) : (
                                                     <div className="avatar">
                                                         <div className="w-10 rounded">
-                                                            <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                                                            <img src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp" alt='product-picture' />
                                                         </div>
                                                     </div>
                                                 )}
@@ -192,6 +221,9 @@ export default function Index({ auth, products, queryParams = null }) {
                                             <td>{product.selling_price}</td>
                                             <td>{formatDate(product.created_at)}</td>
                                             <td className='flex gap-1'>
+                                                <Link href={route('product.show', product.id)} className="btn btn-accent btn-sm">
+                                                    <i className="ri-eye-line text-white"></i>
+                                                </Link>
                                                 <Link href={route('product.edit', product.id)} className="btn btn-warning btn-sm">
                                                     <i className="ri-pencil-fill text-white"></i>
                                                 </Link>
@@ -205,7 +237,7 @@ export default function Index({ auth, products, queryParams = null }) {
                                     ))}
                                 </tbody>
                             </table>
-                            <Pagination links={products.links} onPageChange={handlePageChange} />
+                            <Pagination links={products.links} />
                         </div>
                     </div>
                 </div>

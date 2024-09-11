@@ -1,16 +1,15 @@
 import { Link } from "@inertiajs/react";
 
-export default function Pagination({ links, onPageChange }) {
+export default function Pagination({ links }) {
     return (
         <div className="flex items-center justify-center mt-4 space-x-1">
-            {links.map((link, index) => (
+            {links.map((link) => (
                 <Link
-                    key={index}
+                    key={link.label}
+                    href={link.url}
                     preserveScroll
-                    onClick={() => onPageChange(link.url)}
-                    disabled={!link.url}
                     dangerouslySetInnerHTML={{ __html: link.label }}
-                    href={link.url || ''}
+                    disabled={!link.url}
                     className={`px-3 py-1 rounded
                         ${link.active
                             ? 'bg-blue-500 text-white'
