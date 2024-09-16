@@ -11,7 +11,13 @@ export default function Show({ auth, product }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Product Details</h2>
+                <div className='flex items-center justify-between'>
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Product Details</h2>
+                    <Link href={route('product')} className="btn btn-neutral btn-sm">
+                        <i className='ri-arrow-left-fill'></i>
+                        Return Back
+                    </Link>
+                </div>
             }
         >
 
@@ -32,11 +38,8 @@ export default function Show({ auth, product }) {
                                     <h3 className="text-xl text-slate-500 dark:text-slate-400 mb-2">{product.category}</h3>
                                     <h2 className="text-xl font-semibold">Purchasing Price : {priceFormat(product.purchase_price)}</h2>
                                     <h2 className="text-xl font-semibold">Selling Price : {priceFormat(product.selling_price)}</h2>
-                                    <p className="py-6">{product.description}</p>
-                                    <Link href={route('product')} className="btn btn-secondary btn-sm">
-                                        <i className='ri-arrow-left-fill'></i>
-                                        Return Back
-                                    </Link>
+                                    <p className="pt-6 pb-1 font-semibold">Description:</p>
+                                    <p>{product.description}</p>
                                 </div>
                             </div>
                         </div>

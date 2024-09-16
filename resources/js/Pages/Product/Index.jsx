@@ -51,12 +51,13 @@ export default function Index({ auth, products, queryParams = null, success, err
         });
     };
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            document.getElementById('alert-notif').style.display = 'none';
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, []);
+    const deleteProduct = (id, e) => {
+        e.preventDefault();
+        if (!window.confirm('Are you sure you want to delete this product?')) {
+            return;
+        }
+        router.delete(route('product.delete', id));
+    }
 
     return (
         <AuthenticatedLayout
@@ -77,7 +78,7 @@ export default function Index({ auth, products, queryParams = null, success, err
             <div className="py-12">
                 <div className="w-full px-2 mx-auto sm:px-6 lg:px-8">
                     {success && (
-                        <div role="alert" className="alert alert-success mb-3" id='alert-notif'>
+                        <div role="alert" className="alert alert-success mb-3">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -85,7 +86,7 @@ export default function Index({ auth, products, queryParams = null, success, err
                         </div>
                     )}
                     {error && (
-                        <div role="alert" className="alert alert-error mb-3" id='alert-notif'>
+                        <div role="alert" className="alert alert-error mb-3">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -227,11 +228,9 @@ export default function Index({ auth, products, queryParams = null, success, err
                                                 <Link href={route('product.edit', product.id)} className="btn btn-warning btn-sm">
                                                     <i className="ri-pencil-fill text-white"></i>
                                                 </Link>
-                                                <form action={route('product.delete', product.id)} method="post" encType="multipart/form-data" className="btn btn-error btn-sm">
-                                                    <button type="submit">
-                                                        <i className="ri-close-circle-line text-white"></i>
-                                                    </button>
-                                                </form>
+                                                <button onClick={(e) => deleteProduct(product.id, e)} className='btn btn-error btn-sm'>
+                                                    <i className="ri-close-circle-line text-white"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

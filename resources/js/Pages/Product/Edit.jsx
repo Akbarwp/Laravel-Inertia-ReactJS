@@ -1,20 +1,21 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Create({ auth }) {
+export default function Edit({ auth, product }) {
 
     const { data, setData, post, errors, reset } = useForm({
-        name: '',
-        category: '',
-        description: '',
-        purchase_price: '',
-        selling_price: '',
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        description: product.description,
+        purchase_price: product.purchase_price,
+        selling_price: product.selling_price,
         picture: '',
     });
 
     const onSubmit = (e) => {
         e.preventDefault();
-        post(route('product.store'));
+        post(route('product.update', data));
     }
 
     const previewImage = (e) => {
@@ -36,7 +37,7 @@ export default function Create({ auth }) {
             user={auth.user}
             header={
                 <div className='flex items-center justify-between'>
-                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Add Product</h2>
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Edit Product</h2>
                     <Link href={route('product')} className="btn btn-neutral btn-sm">
                         <i className='ri-arrow-left-fill'></i>
                         Return Back
@@ -45,13 +46,14 @@ export default function Create({ auth }) {
             }
         >
 
-            <Head title="Add Product" />
+            <Head title="Edit Product" />
 
             <div className="py-12">
                 <div className="w-full px-2 mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className='max-w-7xl mx-auto px-10 py-6'>
                             <form onSubmit={onSubmit} method="POST" encType='multipart/form-data'>
+                                <input type="text" name='id' className="input input-bordered w-full" defaultValue={data.id} hidden />
                                 <label className="form-control w-full">
                                     <div className="label">
                                         <span className="label-text dark:text-white font-semibold">Name:</span>
@@ -104,14 +106,19 @@ export default function Create({ auth }) {
                                     <input type="file" id='picture' name='picture' placeholder="Picture" className="file-input file-input-bordered w-full" onChange={(e) => previewImage(e)} />
                                     <div className="avatar">
                                         <div className="w-fit max-h-64 rounded">
-                                            <img className="img-preview max-w-full h-auto mt-3 rounded-lg hidden" />
+                                            {product.picture ? (
+                                                <img src={`/storage/products/${product.picture}`} alt='product-picture' className="img-preview max-w-full h-auto mt-3 rounded-lg" />
+
+                                            ) : (
+                                                <img src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp" alt='product-picture' className="img-preview max-w-full h-auto mt-3 rounded-lg" />
+                                            )}
                                         </div>
                                     </div>
                                     <div className="label">
                                         <span className="label-text-alt text-error">{errors.picture}</span>
                                     </div>
                                 </label>
-                                <button type='submit' className="btn btn-primary w-full">Save</button>
+                                <button type='submit' className="btn btn-warning w-full">Update</button>
                             </form>
                         </div>
                     </div>

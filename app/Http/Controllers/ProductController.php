@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -63,7 +65,7 @@ class ProductController extends Controller
         ]);
         $picture = '';
         if ($request->hasFile('picture')) {
-            $picture = str_replace(' ', '_', strtolower($request->name)) . "." . $request->file('picture')->getClientOriginalExtension();
+            $picture = Str::random(11) . "." . $request->file('picture')->getClientOriginalExtension();
         }
         $validated['picture'] = $picture;
 
@@ -82,7 +84,7 @@ class ProductController extends Controller
 
     public function edit(Request $request)
     {
-        return inertia('Product/Create', [
+        return inertia('Product/Edit', [
             'product' => Product::find($request->product),
         ]);
     }
@@ -98,10 +100,9 @@ class ProductController extends Controller
             'picture' => 'nullable|image|max:3072',
         ]);
         $product = Product::find($request->id);
+        $oldPicure = $product->picture;
         if ($request->hasFile('picture')) {
-            $picture = str_replace(' ', '_', strtolower($request->name)) . "." . $request->file('picture')->getClientOriginalExtension();
-        } else {
-            $picture = $product->picture;
+            $picture = Str::random(11) . "." . $request->file('picture')->getClientOriginalExtension();
         }
         $validated['picture'] = $picture;
 
@@ -110,11 +111,27 @@ class ProductController extends Controller
         if ($update) {
             if ($request->hasFile('picture')) {
                 $folderPath = "products/";
+                Storage::delete($folderPath . $oldPicure);
                 $request->file('picture')->storeAs($folderPath, $picture);
             }
-            return to_route('product')->with('success', 'Product created successfully');
+            return to_route('product')->with('success', 'Product updated successfully');
         } else {
-            return to_route('product')->with('error', 'Product created failed');
+            return to_route('product')->with('error', 'Product updated failed');
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        $product = Product::find($request->product);
+        $delete = $product->delete();
+        if ($delete) {
+            if ($product->hasFile('picture')) {
+                $folderPath = "products/";
+                Storage::delete($folderPath . $product->picture);
+            }
+            return to_route('product')->with('success', 'Product '.$product->name.' deleted successfully');
+        } else {
+            return to_route('product')->with('error', 'Product '.$product->name.' deleted failed');
         }
     }
 }
