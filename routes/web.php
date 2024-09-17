@@ -45,6 +45,24 @@ Route::group([
         'prefix' => 'transaction',
     ], function() {
         Route::get('/', [TransactionController::class, 'index'])->name('transaction');
+        Route::get('/show/{transaction:id}', [TransactionController::class, 'show'])->name('transaction.show');
+        Route::get('/create', [TransactionController::class, 'create'])->name('transaction.create');
+        Route::post('/create', [TransactionController::class, 'store'])->name('transaction.store');
+        Route::get('/edit/{transaction:id}', [TransactionController::class, 'edit'])->name('transaction.edit');
+        Route::post('/edit/{transaction:id}', [TransactionController::class, 'update'])->name('transaction.update');
+        Route::delete('/delete/{transaction:id}', [TransactionController::class, 'delete'])->name('transaction.delete');
+    });
+
+    Route::group([
+        'prefix' => 'transaction-detail',
+    ], function() {
+        Route::get('/', [TransactionController::class, 'index'])->name('transaction-detail');
+        Route::get('/show/{transaction:id}', [TransactionController::class, 'show'])->name('transaction-detail.show');
+        Route::get('/create', [TransactionController::class, 'create'])->name('transaction-detail.create');
+        Route::post('/create', [TransactionController::class, 'store'])->name('transaction-detail.store');
+        Route::get('/edit/{transaction:id}', [TransactionController::class, 'edit'])->name('transaction-detail.edit');
+        Route::post('/edit/{transaction:id}', [TransactionController::class, 'update'])->name('transaction-detail.update');
+        Route::delete('/delete/{transaction:id}', [TransactionController::class, 'delete'])->name('transaction-detail.delete');
     });
 });
 

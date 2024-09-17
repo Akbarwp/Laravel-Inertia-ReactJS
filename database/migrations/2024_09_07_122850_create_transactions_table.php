@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('transaction_code');
             $table->date('transaction_date');
             $table->double('grand_total');
+            $table->double('payment');
+            $table->double('change');
             $table->integer('status');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();

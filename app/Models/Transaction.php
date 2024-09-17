@@ -14,6 +14,8 @@ class Transaction extends Model
         'transaction_code',
         'transaction_date',
         'grand_total',
+        'payment',
+        'change',
         'status',
         'user_id',
     ];

@@ -1,13 +1,15 @@
 import Pagination from '@/Components/Pagination';
 import TableHeading from '@/Components/TableHeading';
 import TextInput from '@/Components/TextInput';
+import SelectInput from '@/Components/SelectInput';
+import TransactionStatusLabel from '@/Components/TransactionStatusLabel';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function Index({ auth, products, queryParams = null, success, error }) {
+export default function Index({ auth, transactions, transactionStatus, queryParams = null, success, error }) {
     // Numbering table
-    const currentPage = products.current_page;
-    const perPage = products.per_page;
+    const currentPage = transactions.current_page;
+    const perPage = transactions.per_page;
     const getNumbering = (index) => {
         return (currentPage - 1) * perPage + index + 1;
     };
@@ -20,7 +22,7 @@ export default function Index({ auth, products, queryParams = null, success, err
         } else {
             delete queryParams[name];
         }
-        router.get(route('product'), queryParams, { preserveScroll: true });
+        router.get(route('transaction'), queryParams, { preserveScroll: true });
     }
 
     const onKeyPress = (name, e) => {
@@ -39,7 +41,7 @@ export default function Index({ auth, products, queryParams = null, success, err
             queryParams.sort_field = name;
             queryParams.sort_direction = 'asc';
         }
-        router.get(route('product'), queryParams, { preserveScroll: true });
+        router.get(route('transaction'), queryParams, { preserveScroll: true });
     }
 
     const formatDate = (dateString) => {
@@ -54,12 +56,12 @@ export default function Index({ auth, products, queryParams = null, success, err
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price)
     }
 
-    const deleteProduct = (id, e) => {
+    const deleteTransaction = (id, e) => {
         e.preventDefault();
-        if (!window.confirm('Are you sure you want to delete this product?')) {
+        if (!window.confirm('Are you sure you want to delete this transaction?')) {
             return;
         }
-        router.delete(route('product.delete', id));
+        router.delete(route('transaction.delete', id));
     }
 
     return (
@@ -67,16 +69,16 @@ export default function Index({ auth, products, queryParams = null, success, err
             user={auth.user}
             header={
                 <div className="flex items-center justify-between">
-                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Product</h2>
-                    <Link href={route('product.create')} className="btn btn-primary btn-sm">
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Transaction</h2>
+                    <Link href={route('transaction.create')} className="btn btn-primary btn-sm">
                         <i className='ri-add-line'></i>
-                        Add Product
+                        Add Transaction
                     </Link>
                 </div>
             }
         >
 
-            <Head title="Product" />
+            <Head title="Transaction" />
 
             <div className="py-12">
                 <div className="w-full px-2 mx-auto sm:px-6 lg:px-8">
@@ -102,51 +104,60 @@ export default function Index({ auth, products, queryParams = null, success, err
                                 <thead className='dark:text-white'>
                                     <tr>
                                         <th></th>
-                                        <th>Picture</th>
+                                        <th>Transaction Code</th>
                                         <TableHeading
-                                            name="name"
+                                            name="transaction_date"
                                             sortable={true}
                                             sort_field={queryParams.sort_field}
                                             sort_direction={queryParams.sort_direction}
                                             sortChanged={sortChanged}
                                         >
-                                            Name
+                                            Date
                                         </TableHeading>
                                         <TableHeading
-                                            name="category"
+                                            name="grand_total"
                                             sortable={true}
                                             sort_field={queryParams.sort_field}
                                             sort_direction={queryParams.sort_direction}
                                             sortChanged={sortChanged}
                                         >
-                                            Category
+                                            Grand Total
                                         </TableHeading>
                                         <TableHeading
-                                            name="purchase_price"
+                                            name="payment"
                                             sortable={true}
                                             sort_field={queryParams.sort_field}
                                             sort_direction={queryParams.sort_direction}
                                             sortChanged={sortChanged}
                                         >
-                                            Purchase Price
+                                            Payment
                                         </TableHeading>
                                         <TableHeading
-                                            name="selling_price"
+                                            name="change"
                                             sortable={true}
                                             sort_field={queryParams.sort_field}
                                             sort_direction={queryParams.sort_direction}
                                             sortChanged={sortChanged}
                                         >
-                                            Selling Price
+                                            Change
                                         </TableHeading>
                                         <TableHeading
-                                            name="created_at"
+                                            name="status"
                                             sortable={true}
                                             sort_field={queryParams.sort_field}
                                             sort_direction={queryParams.sort_direction}
                                             sortChanged={sortChanged}
                                         >
-                                            Created At
+                                            Status
+                                        </TableHeading>
+                                        <TableHeading
+                                            name="user"
+                                            sortable={true}
+                                            sort_field={queryParams.sort_field}
+                                            sort_direction={queryParams.sort_direction}
+                                            sortChanged={sortChanged}
+                                        >
+                                            User
                                         </TableHeading>
                                         <th>Action</th>
                                     </tr>
@@ -154,25 +165,24 @@ export default function Index({ auth, products, queryParams = null, success, err
                                 <tbody>
                                     <tr>
                                         <td></td>
-                                        <td></td>
                                         <td>
                                             <TextInput
                                                 type="text"
                                                 className=""
-                                                placeholder="Product Name"
-                                                defaultValue={queryParams.name}
-                                                onBlur={(e) => searchFieldChanged('name', e.target.value)}
-                                                onKeyPress={(e) => onKeyPress('name', e)}
+                                                placeholder="Transaction Code"
+                                                defaultValue={queryParams.transaction_code}
+                                                onBlur={(e) => searchFieldChanged('transaction_code', e.target.value)}
+                                                onKeyPress={(e) => onKeyPress('transaction_code', e)}
                                             />
                                         </td>
                                         <td>
                                             <TextInput
-                                                type="text"
+                                                type="date"
                                                 className=""
-                                                placeholder="Category"
-                                                defaultValue={queryParams.category}
-                                                onBlur={(e) => searchFieldChanged('category', e.target.value)}
-                                                onKeyPress={(e) => onKeyPress('category', e)}
+                                                placeholder="Transaction Date"
+                                                defaultValue={queryParams.transaction_date}
+                                                onBlur={(e) => searchFieldChanged('transaction_date', e.target.value)}
+                                                onKeyPress={(e) => onKeyPress('transaction_date', e)}
                                             />
                                         </td>
                                         <td>
@@ -180,10 +190,10 @@ export default function Index({ auth, products, queryParams = null, success, err
                                                 type="number"
                                                 min="0"
                                                 className=""
-                                                placeholder="Price"
-                                                defaultValue={queryParams.purchase_price}
-                                                onBlur={(e) => searchFieldChanged('purchase_price', e.target.value)}
-                                                onKeyPress={(e) => onKeyPress('purchase_price', e)}
+                                                placeholder="Grand Total"
+                                                defaultValue={queryParams.grand_total}
+                                                onBlur={(e) => searchFieldChanged('grand_total', e.target.value)}
+                                                onKeyPress={(e) => onKeyPress('grand_total', e)}
                                             />
                                         </td>
                                         <td>
@@ -191,47 +201,67 @@ export default function Index({ auth, products, queryParams = null, success, err
                                                 type="number"
                                                 min="0"
                                                 className=""
-                                                placeholder="Price"
-                                                defaultValue={queryParams.selling_price}
-                                                onBlur={(e) => searchFieldChanged('selling_price', e.target.value)}
-                                                onKeyPress={(e) => onKeyPress('selling_price', e)}
+                                                placeholder="Payment"
+                                                defaultValue={queryParams.payment}
+                                                onBlur={(e) => searchFieldChanged('payment', e.target.value)}
+                                                onKeyPress={(e) => onKeyPress('payment', e)}
                                             />
                                         </td>
-                                        <td></td>
+                                        <td>
+                                            <TextInput
+                                                type="number"
+                                                min="0"
+                                                className=""
+                                                placeholder="Change"
+                                                defaultValue={queryParams.change}
+                                                onBlur={(e) => searchFieldChanged('change', e.target.value)}
+                                                onKeyPress={(e) => onKeyPress('change', e)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <SelectInput
+                                                className=""
+                                                placeholder="Select status!"
+                                                defaultValue={queryParams.status}
+                                                onChange={(e) => searchFieldChanged('status', e.target.value)}
+                                            >
+                                                <option value="">All</option>
+                                                {transactionStatus.map((status, index) => (
+                                                    <option key={index} value={status[1]}>{status[0]}</option>
+                                                ))}
+                                            </SelectInput>
+                                        </td>
+                                        <td>
+                                            <TextInput
+                                                type="text"
+                                                className=""
+                                                placeholder="User"
+                                                defaultValue={queryParams.user}
+                                                onBlur={(e) => searchFieldChanged('user', e.target.value)}
+                                                onKeyPress={(e) => onKeyPress('user', e)}
+                                            />
+                                        </td>
                                         <td></td>
                                     </tr>
 
-                                    {products.data.map((product, index) => (
-                                        <tr key={product.id}>
+                                    {transactions.data.map((transaction, index) => (
+                                        <tr key={transaction.id}>
                                             <td>{getNumbering(index)}</td>
-                                            <td>
-                                                {product.picture ? (
-                                                    <div className="avatar">
-                                                        <div className="w-10 rounded">
-                                                            <img src={`/storage/products/${product.picture}`} alt='product-picture' />
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="avatar">
-                                                        <div className="w-10 rounded">
-                                                            <img src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp" alt='product-picture' />
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td>{product.name}</td>
-                                            <td>{product.category}</td>
-                                            <td>{priceFormat(product.purchase_price)}</td>
-                                            <td>{priceFormat(product.selling_price)}</td>
-                                            <td>{formatDate(product.created_at)}</td>
+                                            <td>{transaction.transaction_code}</td>
+                                            <td>{formatDate(transaction.transaction_date)}</td>
+                                            <td>{priceFormat(transaction.grand_total)}</td>
+                                            <td>{priceFormat(transaction.payment)}</td>
+                                            <td>{priceFormat(transaction.change)}</td>
+                                            <td><TransactionStatusLabel status={transaction.status} /></td>
+                                            <td>{transaction.user}</td>
                                             <td className='flex gap-1'>
-                                                <Link href={route('product.show', product.id)} className="btn btn-accent btn-sm">
+                                                <Link href={route('transaction.show', transaction.id)} className="btn btn-accent btn-sm">
                                                     <i className="ri-eye-line text-white"></i>
                                                 </Link>
-                                                <Link href={route('product.edit', product.id)} className="btn btn-warning btn-sm">
+                                                <Link href={route('transaction.edit', transaction.id)} className="btn btn-warning btn-sm">
                                                     <i className="ri-pencil-fill text-white"></i>
                                                 </Link>
-                                                <button onClick={(e) => deleteProduct(product.id, e)} className='btn btn-error btn-sm'>
+                                                <button onClick={(e) => deleteTransaction(transaction.id, e)} className='btn btn-error btn-sm'>
                                                     <i className="ri-close-circle-line text-white"></i>
                                                 </button>
                                             </td>
@@ -239,7 +269,7 @@ export default function Index({ auth, products, queryParams = null, success, err
                                     ))}
                                 </tbody>
                             </table>
-                            <Pagination links={products.links} />
+                            <Pagination links={transactions.links} />
                         </div>
                     </div>
                 </div>

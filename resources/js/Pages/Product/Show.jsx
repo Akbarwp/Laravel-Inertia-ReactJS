@@ -13,10 +13,16 @@ export default function Show({ auth, product }) {
             header={
                 <div className='flex items-center justify-between'>
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Product Details</h2>
-                    <Link href={route('product')} className="btn btn-neutral btn-sm">
-                        <i className='ri-arrow-left-fill'></i>
-                        Return Back
-                    </Link>
+                    <div className='flex items-center gap-x-2'>
+                        <Link href={route('product.edit', product.id)} className="btn btn-warning btn-sm">
+                            <i className='ri-pencil-fill'></i>
+                            Edit
+                        </Link>
+                        <Link href={route('product')} className="btn btn-neutral btn-sm">
+                            <i className='ri-arrow-left-fill'></i>
+                            Return Back
+                        </Link>
+                    </div>
                 </div>
             }
         >
