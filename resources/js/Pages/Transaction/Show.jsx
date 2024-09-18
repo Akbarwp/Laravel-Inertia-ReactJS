@@ -2,7 +2,10 @@ import Pagination from '@/Components/Pagination';
 import TableHeading from '@/Components/TableHeading';
 import TextInput from '@/Components/TextInput';
 import SelectInput from '@/Components/SelectInput';
-import TransactionStatusLabel from '@/Components/TransactionStatusLabel';
+import {
+    TRANSACTION_STATUS_TEXT_MAP,
+    TRANSACTION_STATUS_CLASS_MAP,
+} from "@/constants.jsx";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -103,7 +106,11 @@ export default function Show({ auth, transaction, transactionDetails, products, 
                                             </tr>
                                             <tr>
                                                 <th>Status</th>
-                                                <td><TransactionStatusLabel status={transaction.status} /></td>
+                                                <td>
+                                                    <div className={`${TRANSACTION_STATUS_CLASS_MAP[transaction.status]}`}>
+                                                        {TRANSACTION_STATUS_TEXT_MAP[transaction.status]}
+                                                    </div>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th>Grand Total</th>

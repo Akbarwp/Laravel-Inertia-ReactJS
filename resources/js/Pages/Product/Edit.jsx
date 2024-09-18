@@ -32,6 +32,7 @@ export default function Edit({ auth, product }) {
             imgPreview.src = oFREvent.target.result;
         }
     }
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -85,7 +86,12 @@ export default function Edit({ auth, product }) {
                                     <div className="label">
                                         <span className="label-text dark:text-white font-semibold">Purchase Price:</span>
                                     </div>
-                                    <input type="number" min="0" name='purchase_price' placeholder="Purchase Price" className="input input-bordered w-full" value={data.purchase_price} onChange={(e) => setData('purchase_price', e.target.value)} required />
+                                    <div className="relative w-full">
+                                        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            Rp
+                                        </div>
+                                        <input type="number" min="0" name='purchase_price' placeholder="Purchase Price" className="input input-bordered w-full ps-10 p-2.5" value={data.purchase_price} onChange={(e) => setData('purchase_price', e.target.value)} required />
+                                    </div>
                                     <div className="label">
                                         <span className="label-text-alt text-error">{errors.purchase_price}</span>
                                     </div>
@@ -94,7 +100,12 @@ export default function Edit({ auth, product }) {
                                     <div className="label">
                                         <span className="label-text dark:text-white font-semibold">Selling Price:</span>
                                     </div>
-                                    <input type="number" min="0" name='selling_price' placeholder="Selling Price" className="input input-bordered w-full" value={data.selling_price} onChange={(e) => setData('selling_price', e.target.value)} required />
+                                    <div className="relative w-full">
+                                        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            Rp
+                                        </div>
+                                        <input type="number" min="0" name='selling_price' placeholder="Selling Price" className="input input-bordered w-full ps-10 p-2.5" value={data.selling_price} onChange={(e) => setData('selling_price', e.target.value)} required />
+                                    </div>
                                     <div className="label">
                                         <span className="label-text-alt text-error">{errors.selling_price}</span>
                                     </div>

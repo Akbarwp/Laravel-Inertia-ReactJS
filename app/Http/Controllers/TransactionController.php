@@ -6,6 +6,7 @@ use App\Enums\TransactionStatus;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -125,15 +126,31 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
-            'description' => 'required|string',
-            'purchase_price' => 'required|decimal:0,2',
-            'selling_price' => 'required|decimal:0,2',
-            'picture' => 'nullable|image|max:3072',
+            'transaction_date' => 'required|date',
+            'grand_total' => 'required|decimal:0,2',
+            'payment' => 'required|decimal:0,2',
+            'change' => 'required|decimal:0,2',
+            'user_id' => 'required|integer',
         ]);
 
+        $validated['transaction_code'] = Carbon::now()->format('dmY-Hi-') . $validated['user_id'];
+        $validated['status'] = TransactionStatus::PENDING->value;
+
         $create = Transaction::create($validated);
+        foreach($request->products as $item) {
+            $product = Product::find($item['productId']);
+            $subTotal = $item['quantity'] * $product->selling_price;
+            $profit = ($product->selling_price - $product->purchase_price) * $item['quantity'];
+
+            TransactionDetail::create([
+                'transaction_id' => $create->id,
+                'product_id' => $item['productId'],
+                'price' => $product->selling_price,
+                'quantity' => $item['quantity'],
+                'sub_total' => $subTotal,
+                'profit' => $profit,
+            ]);
+        }
 
         if ($create) {
             return to_route('transaction')->with('success', 'Transaction created successfully');
@@ -144,23 +161,58 @@ class TransactionController extends Controller
 
     public function edit(Request $request)
     {
+        $transaction = Transaction::find($request->transaction);
+        $detail = [];
+        foreach($transaction->transactionDetail()->get() as $item) {
+            $detail[] = [
+                'id' => $item->id,
+                'productId' => $item->product_id,
+                'price' => $item->price,
+                'quantity' => $item->quantity,
+            ];
+        }
+        $transactionStatus = TransactionStatus::cases();
+
         return inertia('Transaction/Edit', [
-            'transaction' => Transaction::find($request->transaction),
+            'transaction' => $transaction,
+            'transactionDetail' => $detail,
+            'products' => Product::get(),
+            'transactionStatus' => $transactionStatus,
         ]);
     }
 
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
-            'description' => 'required|string',
-            'purchase_price' => 'required|decimal:0,2',
-            'selling_price' => 'required|decimal:0,2',
-            'picture' => 'nullable|image|max:3072',
+            'grand_total' => 'required|decimal:0,2',
+            'payment' => 'required|decimal:0,2',
+            'change' => 'required|decimal:0,2',
+            'status' => 'required|integer',
         ]);
 
-        $update = Transaction::find($request->id)->update($validated);
+        $transaction = Transaction::find($request->id);
+        $update = $transaction->update([
+            'grand_total' => $validated['grand_total'],
+            'payment' => $validated['payment'],
+            'change' => $validated['change'],
+            'status' => $validated['status'],
+        ]);
+
+        $transaction->transactionDetail()->delete();
+        foreach($request->products as $item) {
+            $product = Product::find($item['productId']);
+            $subTotal = $item['quantity'] * $product->selling_price;
+            $profit = ($product->selling_price - $product->purchase_price) * $item['quantity'];
+
+            TransactionDetail::create([
+                'transaction_id' => $transaction->id,
+                'product_id' => $item['productId'],
+                'price' => $product->selling_price,
+                'quantity' => $item['quantity'],
+                'sub_total' => $subTotal,
+                'profit' => $profit,
+            ]);
+        }
 
         if ($update) {
             return to_route('transaction')->with('success', 'Transaction updated successfully');
@@ -171,8 +223,10 @@ class TransactionController extends Controller
 
     public function delete(Request $request)
     {
-        $delete = Transaction::find($request->transaction)->delete();
-        if ($delete) {
+        $transaction = Transaction::find($request->transaction);
+        $deleteDetail = $transaction->transactionDetail()->delete();
+        $delete = $transaction->delete();
+        if ($delete && $deleteDetail) {
             return to_route('transaction')->with('success', 'Transaction deleted successfully');
         } else {
             return to_route('transaction')->with('error', 'Transaction deleted failed');

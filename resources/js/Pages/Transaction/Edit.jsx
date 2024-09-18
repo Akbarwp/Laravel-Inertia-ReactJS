@@ -1,15 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { TRANSACTION_STATUS_TEXT_MAP } from "@/constants.jsx";
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Create({ auth, products }) {
+export default function Edit({ auth, products, transaction, transactionDetail, transactionStatus }) {
 
     const { data, setData, post, errors, reset } = useForm({
-        transaction_date: new Date().toISOString().substr(0, 10),
-        grand_total: '',
-        payment: '',
-        change: '',
-        user_id: auth.user.id,
-        products: [],
+        id: transaction.id,
+        transaction_date: transaction.transaction_date,
+        grand_total: transaction.grand_total,
+        payment: transaction.payment,
+        change: transaction.change,
+        status: transaction.status,
+        products: transactionDetail,
     });
 
     const addProductForm = () => {
@@ -90,10 +92,7 @@ export default function Create({ auth, products }) {
         if (data.payment < data.grand_total || data.change < 0) {
             return alert('Payment is not enough!');
         }
-        if (data.products.length === 0) {
-            return alert('Please add product first!');
-        }
-        post(route('transaction.store'));
+        post(route('transaction.update', transaction.id));
     }
 
     return (
@@ -101,7 +100,7 @@ export default function Create({ auth, products }) {
             user={auth.user}
             header={
                 <div className='flex items-center justify-between'>
-                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Add Transaction</h2>
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Edit Transaction</h2>
                     <Link href={route('transaction')} className="btn btn-neutral btn-sm">
                         <i className='ri-arrow-left-fill'></i>
                         Return Back
@@ -110,13 +109,14 @@ export default function Create({ auth, products }) {
             }
         >
 
-            <Head title="Add Transaction" />
+            <Head title="Edit Transaction" />
 
             <div className="py-12">
                 <div className="w-full px-2 mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className='max-w-7xl mx-auto px-10 py-6'>
                             <form onSubmit={onSubmit} method="POST" encType='multipart/form-data'>
+                                <input type="text" name='id' className="input input-bordered w-full" defaultValue={data.id} hidden />
                                 <label className="form-control w-full">
                                     <div className="label">
                                         <span className="label-text dark:text-white font-semibold">Transaction Date:</span>
@@ -124,6 +124,26 @@ export default function Create({ auth, products }) {
                                     <input type="date" name='transaction_date' className="input input-bordered w-full bg-slate-200" value={data.transaction_date} readOnly />
                                     <div className="label">
                                         <span className="label-text-alt text-error">{errors.transaction_date}</span>
+                                    </div>
+                                </label>
+                                <label className="form-control w-full">
+                                    <div className="label">
+                                        <span className="label-text dark:text-white font-semibold">Status:</span>
+                                    </div>
+                                    <select
+                                        className="select select-bordered"
+                                        name='status'
+                                        value={data.status}
+                                        onChange={(e) => setData('status', e.target.value)}
+                                        required
+                                    >
+                                        <option value="" selected>Select status!</option>
+                                        {transactionStatus.map((status) => (
+                                            <option key={status} value={status}>{TRANSACTION_STATUS_TEXT_MAP[status]}</option>
+                                        ))}
+                                    </select>
+                                    <div className="label">
+                                        <span className="label-text-alt text-error">{errors.payment}</span>
                                     </div>
                                 </label>
                                 <label className="form-control w-full">
@@ -193,10 +213,10 @@ export default function Create({ auth, products }) {
                                                     <select
                                                         className="select select-bordered"
                                                         name='products'
+                                                        value={product.productId}
                                                         onChange={(e) => {
                                                             handleSelectProduct(product.id, e.target.value);
-                                                        }
-                                                        }
+                                                        }}
                                                         required
                                                     >
                                                         <option value="" selected>Select product!</option>
@@ -226,7 +246,7 @@ export default function Create({ auth, products }) {
                                         ))}
                                     </div>
                                 </div>
-                                <button type='submit' className="btn btn-primary w-full">Save</button>
+                                <button type='submit' className="btn btn-warning w-full">Update</button>
                             </form>
                         </div>
                     </div>

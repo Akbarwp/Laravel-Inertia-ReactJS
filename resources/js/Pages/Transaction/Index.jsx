@@ -2,7 +2,10 @@ import Pagination from '@/Components/Pagination';
 import TableHeading from '@/Components/TableHeading';
 import TextInput from '@/Components/TextInput';
 import SelectInput from '@/Components/SelectInput';
-import TransactionStatusLabel from '@/Components/TransactionStatusLabel';
+import {
+    TRANSACTION_STATUS_TEXT_MAP,
+    TRANSACTION_STATUS_CLASS_MAP,
+} from "@/constants.jsx";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -252,7 +255,11 @@ export default function Index({ auth, transactions, transactionStatus, queryPara
                                             <td>{priceFormat(transaction.grand_total)}</td>
                                             <td>{priceFormat(transaction.payment)}</td>
                                             <td>{priceFormat(transaction.change)}</td>
-                                            <td><TransactionStatusLabel status={transaction.status} /></td>
+                                            <td>
+                                                <div className={`${TRANSACTION_STATUS_CLASS_MAP[transaction.status]}`}>
+                                                    {TRANSACTION_STATUS_TEXT_MAP[transaction.status]}
+                                                </div>
+                                            </td>
                                             <td>{transaction.user}</td>
                                             <td className='flex gap-1'>
                                                 <Link href={route('transaction.show', transaction.id)} className="btn btn-accent btn-sm">

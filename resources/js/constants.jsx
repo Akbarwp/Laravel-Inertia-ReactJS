@@ -7,9 +7,9 @@ export const TRANSACTION_STATUS_TEXT_MAP = {
 }
 
 export const TRANSACTION_STATUS_CLASS_MAP = {
-    1: 'badge badge-neutral',
-    2: 'badge badge-primary',
-    3: 'badge badge-secondary',
+    1: 'badge badge-primary',
+    2: 'badge badge-secondary',
+    3: 'badge badge-accent',
     4: 'badge badge-success',
     5: 'badge badge-error',
 }
