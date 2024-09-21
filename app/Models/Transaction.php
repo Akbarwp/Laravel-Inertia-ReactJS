@@ -9,7 +9,7 @@ class Transaction extends Model
 {
     use HasFactory;
 
-    public $table = "transactions";
+    protected $table = "transactions";
     protected $fillable = [
         'transaction_code',
         'transaction_date',
